@@ -1,4 +1,4 @@
-package com.stormkid.itchat4ktx
+package com.stormkid.itchat4ktx.util
 
 import android.content.Context
 import android.widget.Toast

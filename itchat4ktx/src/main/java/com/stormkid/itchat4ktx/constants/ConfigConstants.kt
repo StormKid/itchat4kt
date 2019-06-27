@@ -18,7 +18,6 @@ object ConfigConstants {
         it.absolutePath
     }
     const val VERSION = "1.3.10"
-    const val BASE_URL = "https://login.weixin.qq.com"
     const val OS = "Linux"
     fun DIR(context: Context) = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)?.let {
         if (!it.exists()) it.mkdir()
@@ -28,5 +27,6 @@ object ConfigConstants {
     const val USER_AGENT =
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36"
 
+    const val UUID_KEY = "UUID_KEY"
 
 }
