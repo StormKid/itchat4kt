@@ -48,8 +48,8 @@ class ConfigWorker(private val context: Context){
         )
     }
 
-
-    fun getQR(){
-
+    fun close(){
+        PublicSharePreference.removeAll(context)
     }
+
 }
