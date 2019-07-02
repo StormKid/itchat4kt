@@ -8,12 +8,12 @@ import com.stormkid.itchat4ktx.constants.ConfigConstants
 import com.stormkid.itchat4ktx.constants.UrlConstants
 import com.stormkid.itchat4ktx.util.PublicSharePreference
 import com.stormkid.libs.dimen.DimenUtils
-import com.stormkid.okhttpkt.core.OkTk
+import com.stormkid.okhttpkt.cache.CookieManager
+import com.stormkid.okhttpkt.core.Okkt
 import com.stormkid.okhttpkt.rule.CallbackRule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.net.CookieManager
 
 /**
 对外处理登录等事项
@@ -33,7 +33,7 @@ class LoginWorker(private val context: Context) {
             "r" to "$r",
             "_" to "$localTime"
         )
-        OkTk.instance.Builder().setUrl(UrlConstants.LOGIN_URL).setParams(params)
+        Okkt.instance.Builder().setUrl(UrlConstants.LOGIN_URL).setParams(params)
             .getString(object : CallbackRule<String> {
                 override suspend fun onFailed(error: String) {
                 }
@@ -60,7 +60,8 @@ class LoginWorker(private val context: Context) {
 
 
     fun pushLogin(){
-        CookieManager.getDefault()
+        val cookies = CookieManager.instance.getCookies()
+
     }
 
 }

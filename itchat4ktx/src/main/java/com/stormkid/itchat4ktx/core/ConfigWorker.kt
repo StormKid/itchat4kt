@@ -4,7 +4,7 @@ import android.content.Context
 import com.stormkid.itchat4ktx.constants.ConfigConstants
 import com.stormkid.itchat4ktx.constants.UrlConstants
 import com.stormkid.itchat4ktx.util.PublicSharePreference
-import com.stormkid.okhttpkt.core.OkTk
+import com.stormkid.okhttpkt.core.Okkt
 import com.stormkid.okhttpkt.rule.CallbackRule
 
 /**
@@ -18,11 +18,13 @@ class ConfigWorker(private val context: Context){
     private val FUNC = "new"
 
     fun init(){
-        OkTk.instance.setBase(UrlConstants.BASE_URL).initHead(hashMapOf("User-Agent" to ConfigConstants.USER_AGENT)).isLogShow(true).initHttpClient()
+        Okkt.instance.setBase(UrlConstants.BASE_URL).initHead(hashMapOf("User-Agent" to ConfigConstants.USER_AGENT))
+            .isNeedCookie(true)
+            .isLogShow(true).initHttpClient()
     }
 
     fun getUUid(callback:(String)->Unit){
-        OkTk.instance.Builder().setUrl(UrlConstants.UUID_URL).setParams(hashMapOf(
+        Okkt.instance.Builder().setUrl(UrlConstants.UUID_URL).setParams(hashMapOf(
             "appid" to API_KEY,
             "fun" to FUNC
         )).getString(object : CallbackRule<String>{
