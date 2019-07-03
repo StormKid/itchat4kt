@@ -12,5 +12,6 @@ class BaseApp : Application() {
     override fun onCreate() {
         super.onCreate()
         Config.instance.Init(this).runInit()
+
     }
 }
