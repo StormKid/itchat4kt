@@ -17,9 +17,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         doNow.setOnClickListener {
-            Config.instance.loginWorker!!.getQrCode{
-                qrCode.setImageBitmap(it)
-            }
+//            Config.instance.loginWorker!!.getQrCode{
+//                qrCode.setImageBitmap(it)
+//            }
+
+            Config.instance.loginWorker!!.pushLogin()
         }
 
 

@@ -24,6 +24,8 @@ class Config private constructor() {
 
     companion object {
         val instance by lazy { Config() }
+        var isAlive = false
+        var isLogin = false
     }
 
     inner class Init(context: Context) {

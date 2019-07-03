@@ -5,7 +5,7 @@ import com.stormkid.itchat4ktx.constants.ConfigConstants
 import com.stormkid.itchat4ktx.constants.UrlConstants
 import com.stormkid.itchat4ktx.util.PublicSharePreference
 import com.stormkid.okhttpkt.core.Okkt
-import com.stormkid.okhttpkt.rule.CallbackRule
+import com.stormkid.okhttpkt.rule.StringCallback
 
 /**
 基本初始化请求
@@ -27,7 +27,7 @@ class ConfigWorker(private val context: Context){
         Okkt.instance.Builder().setUrl(UrlConstants.UUID_URL).setParams(hashMapOf(
             "appid" to API_KEY,
             "fun" to FUNC
-        )).getString(object : CallbackRule<String>{
+        )).getString(object : StringCallback{
             override suspend fun onFailed(error: String) {
             }
 
