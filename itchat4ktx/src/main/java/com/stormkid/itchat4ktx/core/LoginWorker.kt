@@ -69,7 +69,7 @@ class LoginWorker(private val context: Context) {
     /**
      * 不用二维码登录，即缓存登录
      */
-    fun pushLogin(){
+    fun pushLogin(callback: (String) -> Unit){
         val cookie = CookieManager.instance.getCookie("wxuin")
         if (cookie !=null){
             val url = UrlConstants.WEB_WX_PUSH_LOGIN
@@ -79,6 +79,7 @@ class LoginWorker(private val context: Context) {
                 }
 
                 override suspend fun onSuccess(entity: String, flag: String) {
+                    //TODO 这里返回UUID
                 }
 
             })
