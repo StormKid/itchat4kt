@@ -3,7 +3,6 @@ package com.stormkid.itchartdemo
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.stormkid.itchat4ktx.Config
-import com.stormkid.itchat4ktx.util.Utils
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -12,16 +11,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        Config.instance.configWorker!!.getUUid {
-            Utils.showToast(this,it)
-        }
 
         doNow.setOnClickListener {
-//            Config.instance.loginWorker!!.getQrCode{
-//                qrCode.setImageBitmap(it)
-//            }
+            Config.instance.showQr(this) {
+                qrCode.setImageBitmap(it)
+            }
 
-            Config.instance.loginWorker!!.pushLogin()
         }
 
 
@@ -30,6 +25,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Config.instance.configWorker!!.close()
+        Config.instance.close(this)
     }
 }

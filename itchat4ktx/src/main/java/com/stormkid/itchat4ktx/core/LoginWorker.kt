@@ -4,9 +4,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.text.TextUtils
 import cn.bingoogolapple.qrcode.zxing.QRCodeEncoder
-import com.stormkid.itchat4ktx.Config
 import com.stormkid.itchat4ktx.constants.ConfigConstants
 import com.stormkid.itchat4ktx.constants.UrlConstants
+import com.stormkid.itchat4ktx.util.Log
 import com.stormkid.itchat4ktx.util.PublicSharePreference
 import com.stormkid.libs.dimen.DimenUtils
 import com.stormkid.okhttpkt.cache.CookieManager
@@ -57,13 +57,24 @@ class LoginWorker(private val context: Context) {
     fun getQrCode(callback: (Bitmap?) -> Unit) {
         val path = "https://login.weixin.qq.com/l/"
         val uuid = PublicSharePreference.getString(context, ConfigConstants.UUID_KEY)
-        var bitmap: Bitmap? = null
         runBlocking {
             launch(Dispatchers.Unconfined) {
-                bitmap = QRCodeEncoder.syncEncodeQRCode(path + uuid, DimenUtils.dip2px(context,200f))
+                val bitmap = QRCodeEncoder.syncEncodeQRCode(path+uuid, DimenUtils.dip2px(context, 200f))
                 callback.invoke(bitmap)
             }
         }
+
+        Okkt.instance.Builder().setUrl("/l/$uuid").getString(object :StringCallback{
+            override suspend fun onFailed(error: String) {
+            }
+
+            override suspend fun onSuccess(entity: String, flag: String) {
+                   Log.w(entity)
+            }
+
+        })
+
+
     }
 
     /**
@@ -86,10 +97,6 @@ class LoginWorker(private val context: Context) {
         }
     }
 
-    fun login(){
-        if (Config.isAlive && Config.isLogin) return
-        Config.isLogin = true
 
-    }
 
 }

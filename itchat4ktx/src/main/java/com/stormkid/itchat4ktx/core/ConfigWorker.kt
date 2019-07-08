@@ -17,11 +17,6 @@ class ConfigWorker(private val context: Context){
     private val API_KEY = "wx782c26e4c19acffb"
     private val FUNC = "new"
 
-    fun init(){
-        Okkt.instance.setBase(UrlConstants.BASE_URL).initHead(hashMapOf("User-Agent" to ConfigConstants.USER_AGENT))
-            .isNeedCookie(true)
-            .isLogShow(true).initHttpClient()
-    }
 
     fun getUUid(callback:(String)->Unit){
         Okkt.instance.Builder().setUrl(UrlConstants.UUID_URL).setParams(hashMapOf(
@@ -50,8 +45,5 @@ class ConfigWorker(private val context: Context){
         )
     }
 
-    fun close(){
-        PublicSharePreference.removeAll(context)
-    }
 
 }
