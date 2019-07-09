@@ -13,8 +13,9 @@ class MainActivity : AppCompatActivity() {
 
 
         doNow.setOnClickListener {
-            Config.instance.showQr(this) {
+            Config.instance.showQr {
                 qrCode.setImageBitmap(it)
+                Config.instance.login()
             }
 
         }

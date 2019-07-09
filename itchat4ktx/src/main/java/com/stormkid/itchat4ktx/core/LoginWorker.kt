@@ -8,6 +8,7 @@ import com.stormkid.itchat4ktx.constants.ConfigConstants
 import com.stormkid.itchat4ktx.constants.UrlConstants
 import com.stormkid.itchat4ktx.util.Log
 import com.stormkid.itchat4ktx.util.PublicSharePreference
+import com.stormkid.itchat4ktx.util.Utils
 import com.stormkid.libs.dimen.DimenUtils
 import com.stormkid.okhttpkt.cache.CookieManager
 import com.stormkid.okhttpkt.core.Okkt
@@ -41,18 +42,20 @@ class LoginWorker(private val context: Context) {
         Okkt.instance.Builder().setUrl(UrlConstants.LOGIN_URL).setParams(params)
             .getString(object : StringCallback{
                 override suspend fun onFailed(error: String) {
+                    Utils.showToast(context,"请重新刷新并扫码登录")
                 }
 
                 override suspend fun onSuccess(entity: String, flag: String) {
                     val code = entity.split(";")[0].split("=")[1]
-                    callback.invoke(code)
+                    if (code == "200")callback.invoke(entity)
+                    else Utils.showToast(context,"请重新刷新并扫码登录")
                 }
 
             })
     }
 
     /**
-     * 获取登录二维码
+    * 获取登录二维码
      */
     fun getQrCode(callback: (Bitmap?) -> Unit) {
         val path = "https://login.weixin.qq.com/l/"
@@ -63,37 +66,28 @@ class LoginWorker(private val context: Context) {
                 callback.invoke(bitmap)
             }
         }
-
-        Okkt.instance.Builder().setUrl("/l/$uuid").getString(object :StringCallback{
-            override suspend fun onFailed(error: String) {
-            }
-
-            override suspend fun onSuccess(entity: String, flag: String) {
-                   Log.w(entity)
-            }
-
-        })
-
-
     }
 
     /**
-     * 不用二维码登录，即缓存登录
+     * 虚拟登录，需要轮询登录状态
      */
-    fun pushLogin(callback: (String) -> Unit){
-        val cookie = CookieManager.instance.getCookie("wxuin")
-        if (cookie !=null){
+    fun pushLogin(callback: (String,Boolean) -> Unit){
+        val cookie = CookieManager.instance.getCookieValue("wxuin")
+        if (!TextUtils.isEmpty(cookie)){
             val url = UrlConstants.WEB_WX_PUSH_LOGIN
-            Okkt.instance.Builder().setUrl(url).setParams(hashMapOf("uin" to  cookie.value())).getString(object :StringCallback{
+            Okkt.instance.Builder().setUrl(url).setParams(hashMapOf("uin" to  cookie)).getString(object :StringCallback{
                 override suspend fun onFailed(error: String) {
-
+                    callback.invoke(error,false)
                 }
 
                 override suspend fun onSuccess(entity: String, flag: String) {
                     //TODO 这里返回UUID
+                    Log.w(entity)
+                    callback.invoke(entity,true)
                 }
 
             })
+
         }
     }
 
