@@ -77,6 +77,9 @@ class Config private constructor() {
     }
 
 
+    /**
+     * 登录
+     */
     fun login() {
         if (isLogin && isAlive) return
         Handler().postDelayed({
@@ -87,7 +90,6 @@ class Config private constructor() {
                     loginConfigData.fileUrl = loginConfigData.configUrl
                     loginConfigData.syncUrl = loginConfigData.configUrl
                 }
-
                 loginConfigData.deviceId ="e" +"${Math.random()}".subSequence(2,17).toString()
                 loginConfigData.loginTime = System.currentTimeMillis()
             }
@@ -101,16 +103,15 @@ class Config private constructor() {
 
 
     private fun glayUrl(): Boolean {
-        var temp = false
         indexUrls.forEach {
             if (loginConfigData.configUrl.contains("https://$it")) {
                 loginConfigData.fileUrl = "file.$it"
                 loginConfigData.syncUrl = "webpush.$it"
-                temp = true
+                isLogin = true
                 return@forEach
             }
         }
-        return temp
+        return isLogin
     }
 
 
