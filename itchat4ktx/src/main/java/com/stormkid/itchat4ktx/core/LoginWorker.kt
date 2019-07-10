@@ -6,7 +6,6 @@ import android.text.TextUtils
 import cn.bingoogolapple.qrcode.zxing.QRCodeEncoder
 import com.stormkid.itchat4ktx.constants.ConfigConstants
 import com.stormkid.itchat4ktx.constants.UrlConstants
-import com.stormkid.itchat4ktx.util.Log
 import com.stormkid.itchat4ktx.util.PublicSharePreference
 import com.stormkid.itchat4ktx.util.Utils
 import com.stormkid.libs.dimen.DimenUtils
@@ -32,7 +31,7 @@ class LoginWorker(private val context: Context) {
         val uuid = PublicSharePreference.getString(context, ConfigConstants.UUID_KEY)
         if (TextUtils.isEmpty(uuid)) return
         val localTime = System.currentTimeMillis()
-        val r = (-localTime) / 1579
+        val r = (-localTime) / 1.579
         val params = hashMapOf(
             "tip" to "1",
             "uuid" to uuid!!,
@@ -40,29 +39,36 @@ class LoginWorker(private val context: Context) {
             "_" to "$localTime"
         )
         Okkt.instance.Builder().setUrl(UrlConstants.LOGIN_URL).setParams(params)
-            .getString(object : StringCallback{
+            .getString(object : StringCallback {
                 override suspend fun onFailed(error: String) {
-                    Utils.showToast(context,"请重新刷新并扫码登录")
+                    Utils.showToast(context, "请重新刷新并扫码登录")
                 }
 
                 override suspend fun onSuccess(entity: String, flag: String) {
-                    val code = entity.split(";")[0].split("=")[1]
-                    if (code == "200")callback.invoke(entity)
-                    else Utils.showToast(context,"请重新刷新并扫码登录")
+                    try {
+                        val code = entity.split(";")[0].split("=")[1]
+                        if (code == "200") callback.invoke(entity)
+                        else Utils.showToast(context, "请重新刷新并扫码登录")
+                    }catch (e:Exception){
+                         Utils.showToast(context,ConfigConstants.ERR)
+                    }
+
+
+
                 }
 
             })
     }
 
     /**
-    * 获取登录二维码
+     * 获取登录二维码
      */
     fun getQrCode(callback: (Bitmap?) -> Unit) {
         val path = "https://login.weixin.qq.com/l/"
         val uuid = PublicSharePreference.getString(context, ConfigConstants.UUID_KEY)
         runBlocking {
             launch(Dispatchers.Unconfined) {
-                val bitmap = QRCodeEncoder.syncEncodeQRCode(path+uuid, DimenUtils.dip2px(context, 200f))
+                val bitmap = QRCodeEncoder.syncEncodeQRCode(path + uuid, DimenUtils.dip2px(context, 200f))
                 callback.invoke(bitmap)
             }
         }
@@ -71,26 +77,25 @@ class LoginWorker(private val context: Context) {
     /**
      * 虚拟登录，需要轮询登录状态
      */
-    fun pushLogin(callback: (String,Boolean) -> Unit){
+    fun pushLogin(callback: (String, Boolean) -> Unit) {
         val cookie = CookieManager.instance.getCookieValue("wxuin")
-        if (!TextUtils.isEmpty(cookie)){
+        if (!TextUtils.isEmpty(cookie)) {
             val url = UrlConstants.WEB_WX_PUSH_LOGIN
-            Okkt.instance.Builder().setUrl(url).setParams(hashMapOf("uin" to  cookie)).getString(object :StringCallback{
-                override suspend fun onFailed(error: String) {
-                    callback.invoke(error,false)
-                }
+            Okkt.instance.Builder().setUrl(url).setParams(hashMapOf("uin" to cookie))
+                .getString(object : StringCallback {
+                    override suspend fun onFailed(error: String) {
+                        callback.invoke(error, false)
+                    }
 
-                override suspend fun onSuccess(entity: String, flag: String) {
-                    //TODO 这里返回UUID
-                    Log.w(entity)
-                    callback.invoke(entity,true)
-                }
+                    override suspend fun onSuccess(entity: String, flag: String) {
+                        //TODO 这里返回UUID
+                        callback.invoke(entity, true)
+                    }
 
-            })
+                })
 
         }
     }
-
 
 
 }

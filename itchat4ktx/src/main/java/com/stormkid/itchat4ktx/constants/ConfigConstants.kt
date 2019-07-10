@@ -29,4 +29,5 @@ object ConfigConstants {
 
     const val UUID_KEY = "UUID_KEY"
 
+    const val ERR = "请检查您的网络链接"
 }

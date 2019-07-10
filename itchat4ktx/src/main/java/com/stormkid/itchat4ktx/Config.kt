@@ -3,16 +3,17 @@ package com.stormkid.itchat4ktx
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Handler
+import android.util.Xml
 import com.stormkid.itchat4ktx.constants.ConfigConstants
 import com.stormkid.itchat4ktx.constants.UrlConstants
 import com.stormkid.itchat4ktx.core.ConfigWorker
 import com.stormkid.itchat4ktx.core.FriendWorker
 import com.stormkid.itchat4ktx.core.LoginWorker
 import com.stormkid.itchat4ktx.core.RoomWorker
+import com.stormkid.itchat4ktx.util.BaseDataHandler
 import com.stormkid.itchat4ktx.util.Log
 import com.stormkid.itchat4ktx.util.PublicSharePreference
 import com.stormkid.okhttpkt.core.Okkt
-import com.stormkid.okhttpkt.rule.StringCallback
 import org.litepal.LitePal
 
 /**
@@ -29,6 +30,19 @@ class Config private constructor() {
     private var loginWorker: LoginWorker? = null
     private var friendWorker: FriendWorker? = null
     private var roomWorker: RoomWorker? = null
+    /**
+     * 缓存本地的login
+     */
+    private val loginConfigData = LoginConfigData()
+
+    /**
+     * 缓存登录核心信息
+     */
+     val baseInfoData = BaseInfoData()
+
+    private val indexUrls = arrayListOf(
+        "wx2.qq.com", "wx8.qq.com", "qq.com", "web2.wechat.com", "wechat.com"
+    )
     private var isAlive = false
     private var isLogin = false
 
@@ -54,41 +68,58 @@ class Config private constructor() {
         }
     }
 
-    fun showQr(callback:(Bitmap)->Unit){
+    fun showQr(callback: (Bitmap) -> Unit) {
         configWorker?.getUUid {
             loginWorker?.getQrCode {
-                    callback.invoke(it!!)
+                callback.invoke(it!!)
             }
         }
     }
 
 
+    fun login() {
+        if (isLogin && isAlive) return
+        Handler().postDelayed({
+            loginWorker!!.checkLogin {
+                val url = it.split(";")[1].split("redirect_uri")[1].split("\"")[1]
+                loginConfigData.configUrl = url
+                if (glayUrl())else { //虚拟地址
+                    loginConfigData.fileUrl = loginConfigData.configUrl
+                    loginConfigData.syncUrl = loginConfigData.configUrl
+                }
 
-
-    fun login(){
-        Handler().postDelayed({loginWorker!!.checkLogin {
-            val url = it.split(";")[1].split("redirect_uri")[1].split("\"")[1]
-            glayUrl(url)
-        }},15000)
+                loginConfigData.deviceId ="e" +"${Math.random()}".subSequence(2,17).toString()
+                loginConfigData.loginTime = System.currentTimeMillis()
+            }
+        }, 15000)
     }
 
-    fun close(context: Context){
+    fun close(context: Context) {
         PublicSharePreference.removeAll(context)
     }
 
 
-    private fun glayUrl(url:String){
-        Okkt.instance.Builder().setFullUrl(url).getString(object :StringCallback {
-            override suspend fun onFailed(error: String) {
-            }
 
-            override suspend fun onSuccess(entity: String, flag: String) {
-                Log.w(entity)
+    private fun glayUrl(): Boolean {
+        var temp = false
+        indexUrls.forEach {
+            if (loginConfigData.configUrl.contains("https://$it")) {
+                loginConfigData.fileUrl = "file.$it"
+                loginConfigData.syncUrl = "webpush.$it"
+                temp = true
+                return@forEach
             }
-
-        })
+        }
+        return temp
     }
 
 
+     private fun getBataConfigData(result:String){
+        try {
+            Xml.parse(result, BaseDataHandler(baseInfoData))
+        }catch (e:Exception){
+            Log.e("Your login is none data")
+        }
+    }
 
 }
