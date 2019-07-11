@@ -95,6 +95,20 @@ class LoginWorker(private val context: Context) {
                 })
 
         }
+
+    }
+
+    fun toLoginIn(url:String,callback: (String) -> Unit){
+        Okkt.instance.Builder().setFullUrl(url).getString(object : StringCallback{
+            override suspend fun onFailed(error: String) {
+                callback.invoke(error)
+            }
+
+            override suspend fun onSuccess(entity: String, flag: String) {
+                callback.invoke(entity)
+            }
+
+        })
     }
 
 

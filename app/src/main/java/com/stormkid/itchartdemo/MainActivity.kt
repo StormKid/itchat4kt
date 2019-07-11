@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.stormkid.itchat4ktx.Config
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -24,10 +25,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-//        doNow.setOnClickListener {
-//            Config.instance.getBataConfigData(data)
-//            doNow.text = "${Config.instance.baseInfoData.skey}-【】-${Config.instance.baseInfoData.wxuin}-【】-${Config.instance.baseInfoData.wxsid}-【】-${Config.instance.baseInfoData.pass_ticket}"
-//        }
+
+        doNow.setOnClickListener {
+            Config.instance.showQr {
+                qrCode.setImageBitmap(it)
+                Config.instance.login()
+            }
+        }
 
 
 

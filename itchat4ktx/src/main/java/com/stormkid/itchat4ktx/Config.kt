@@ -13,6 +13,7 @@ import com.stormkid.itchat4ktx.core.RoomWorker
 import com.stormkid.itchat4ktx.util.BaseDataHandler
 import com.stormkid.itchat4ktx.util.Log
 import com.stormkid.itchat4ktx.util.PublicSharePreference
+import com.stormkid.okhttpkt.cache.CookieManager
 import com.stormkid.okhttpkt.core.Okkt
 import org.litepal.LitePal
 
@@ -63,11 +64,16 @@ class Config private constructor() {
                 .setNetClientType(Okkt.HTTPS_TYPE)
                 .initHead(hashMapOf("User-Agent" to ConfigConstants.USER_AGENT))
                 .isNeedCookie(true)
+                .isAllowRedirect(false)
                 .isLogShow(true).initHttpClient()
             LitePal.initialize(context)
         }
     }
 
+
+    /**
+     * 显示二维码
+     */
     fun showQr(callback: (Bitmap) -> Unit) {
         configWorker?.getUUid {
             loginWorker?.getQrCode {
@@ -85,13 +91,15 @@ class Config private constructor() {
         Handler().postDelayed({
             loginWorker!!.checkLogin {
                 val url = it.split(";")[1].split("redirect_uri")[1].split("\"")[1]
-                loginConfigData.configUrl = url
+                loginConfigData.configUrl = url.split("?")[0]
+                Log.w(loginConfigData.configUrl)
                 if (glayUrl())else { //虚拟地址
                     loginConfigData.fileUrl = loginConfigData.configUrl
                     loginConfigData.syncUrl = loginConfigData.configUrl
                 }
                 loginConfigData.deviceId ="e" +"${Math.random()}".subSequence(2,17).toString()
                 loginConfigData.loginTime = System.currentTimeMillis()
+                getBaseData(url)
             }
         }, 15000)
     }
@@ -102,7 +110,17 @@ class Config private constructor() {
 
 
 
+    private fun getBaseData(url:String){
+        loginWorker?.toLoginIn(url){
+            Log.w(it)
+            Log.e(CookieManager.instance.getCookies())
+        }
+    }
+
+
+
     private fun glayUrl(): Boolean {
+
         indexUrls.forEach {
             if (loginConfigData.configUrl.contains("https://$it")) {
                 loginConfigData.fileUrl = "file.$it"
