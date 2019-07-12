@@ -15,6 +15,12 @@ import com.stormkid.okhttpkt.rule.StringCallback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.apache.http.HttpResponse
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.impl.client.DefaultRedirectHandler
+import org.apache.http.protocol.HttpContext
+import java.io.InputStream
 
 /**
 对外处理登录等事项
@@ -99,17 +105,32 @@ class LoginWorker(private val context: Context) {
     }
 
     fun toLoginIn(url:String,callback: (String) -> Unit){
-        Okkt.instance.Builder().setFullUrl(url).getString(object : StringCallback{
-            override suspend fun onFailed(error: String) {
-                callback.invoke(error)
+        val get = HttpGet(url)
+        get.addHeader("User-Agent",ConfigConstants.USER_AGENT)
+        val client = DefaultHttpClient()
+        client.redirectHandler = RedirectHander()
+        runBlocking{
+            launch(Dispatchers.IO) {
+                try {
+                    val response = client.execute(get)
+                    val input = response.entity.content
+                    callback.invoke(getResult(input))
+                }catch (e : Exception){
+                    e.printStackTrace()
+                }
             }
-
-            override suspend fun onSuccess(entity: String, flag: String) {
-                callback.invoke(entity)
-            }
-
-        })
+         }
     }
 
 
+
+
+    private fun getResult(inputstream:InputStream) = String(inputstream.readBytes())
+
+    inner class RedirectHander : DefaultRedirectHandler(){
+        override fun isRedirectRequested(p0: HttpResponse?, p1: HttpContext?): Boolean {
+            return false
+        }
+
+    }
 }

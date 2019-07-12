@@ -41,6 +41,7 @@ data class LoginConfigData(
     var fileUrl: String = "",
     var syncUrl: String = "",
     var deviceId: String = "",
+    var wxUrl : String = "",
     var loginTime: Long = 0L
 ) : Serializable
 

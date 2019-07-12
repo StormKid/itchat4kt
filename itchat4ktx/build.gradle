@@ -29,6 +29,8 @@ dependencies {
     implementation 'com.stormkid:okhttpkt:1.0.5'
     implementation 'cn.bingoogolapple:bga-qrcode-zxing:1.3.6'
     implementation 'org.litepal.android:kotlin:3.0.0'
+    //noinspection GradlePath
+    implementation files('libs\\org.apache.http.legacy.jar')
 }
 repositories {
     mavenCentral()

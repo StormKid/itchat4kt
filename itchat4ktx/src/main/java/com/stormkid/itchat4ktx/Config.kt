@@ -13,7 +13,6 @@ import com.stormkid.itchat4ktx.core.RoomWorker
 import com.stormkid.itchat4ktx.util.BaseDataHandler
 import com.stormkid.itchat4ktx.util.Log
 import com.stormkid.itchat4ktx.util.PublicSharePreference
-import com.stormkid.okhttpkt.cache.CookieManager
 import com.stormkid.okhttpkt.core.Okkt
 import org.litepal.LitePal
 
@@ -92,10 +91,10 @@ class Config private constructor() {
             loginWorker!!.checkLogin {
                 val url = it.split(";")[1].split("redirect_uri")[1].split("\"")[1]
                 loginConfigData.configUrl = url.split("?")[0]
-                Log.w(loginConfigData.configUrl)
+                loginConfigData.wxUrl = loginConfigData.configUrl.replace("webwxnewloginpage","")
                 if (glayUrl())else { //虚拟地址
-                    loginConfigData.fileUrl = loginConfigData.configUrl
-                    loginConfigData.syncUrl = loginConfigData.configUrl
+                    loginConfigData.fileUrl =  loginConfigData.wxUrl
+                    loginConfigData.syncUrl =  loginConfigData.wxUrl
                 }
                 loginConfigData.deviceId ="e" +"${Math.random()}".subSequence(2,17).toString()
                 loginConfigData.loginTime = System.currentTimeMillis()
@@ -112,8 +111,7 @@ class Config private constructor() {
 
     private fun getBaseData(url:String){
         loginWorker?.toLoginIn(url){
-            Log.w(it)
-            Log.e(CookieManager.instance.getCookies())
+            getBataConfigData(it)
         }
     }
 
