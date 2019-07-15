@@ -4,12 +4,13 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.text.TextUtils
 import cn.bingoogolapple.qrcode.zxing.QRCodeEncoder
+import com.stormkid.itchat4ktx.Config
 import com.stormkid.itchat4ktx.constants.ConfigConstants
 import com.stormkid.itchat4ktx.constants.UrlConstants
+import com.stormkid.itchat4ktx.util.Log
 import com.stormkid.itchat4ktx.util.PublicSharePreference
 import com.stormkid.itchat4ktx.util.Utils
 import com.stormkid.libs.dimen.DimenUtils
-import com.stormkid.okhttpkt.cache.CookieManager
 import com.stormkid.okhttpkt.core.Okkt
 import com.stormkid.okhttpkt.rule.StringCallback
 import kotlinx.coroutines.Dispatchers
@@ -54,7 +55,10 @@ class LoginWorker(private val context: Context) {
                     try {
                         val code = entity.split(";")[0].split("=")[1]
                         if (code == "200") callback.invoke(entity)
-                        else Utils.showToast(context, "请重新刷新并扫码登录")
+                        else {
+                            Config.instance.cleanLoginInfo()
+                            Utils.showToast(context, "请重新刷新并扫码登录")
+                        }
                     }catch (e:Exception){
                          Utils.showToast(context,ConfigConstants.ERR)
                     }
@@ -84,18 +88,18 @@ class LoginWorker(private val context: Context) {
      * 虚拟登录，需要轮询登录状态
      */
     fun pushLogin(callback: (String, Boolean) -> Unit) {
-        val cookie = CookieManager.instance.getCookieValue("wxuin")
-        if (!TextUtils.isEmpty(cookie)) {
+        val wxin = Config.instance.baseInfoData.wxuin
+        if (!TextUtils.isEmpty(wxin)) {
             val url = UrlConstants.WEB_WX_PUSH_LOGIN
-            Okkt.instance.Builder().setUrl(url).setParams(hashMapOf("uin" to cookie))
+            Okkt.instance.Builder().setUrl(url).setParams(hashMapOf("uin" to wxin))
                 .getString(object : StringCallback {
                     override suspend fun onFailed(error: String) {
-                        callback.invoke(error, false)
+                         Utils.showToast(context,error)
                     }
 
                     override suspend fun onSuccess(entity: String, flag: String) {
-                        //TODO 这里返回UUID
-                        callback.invoke(entity, true)
+                         Log.w(entity)
+
                     }
 
                 })
@@ -104,6 +108,9 @@ class LoginWorker(private val context: Context) {
 
     }
 
+    /**
+     * 直接登录获取登录具体内容
+     */
     fun toLoginIn(url:String,callback: (String) -> Unit){
         val get = HttpGet(url)
         get.addHeader("User-Agent",ConfigConstants.USER_AGENT)
@@ -121,6 +128,12 @@ class LoginWorker(private val context: Context) {
             }
          }
     }
+
+
+    fun webInit(){
+
+    }
+
 
 
 

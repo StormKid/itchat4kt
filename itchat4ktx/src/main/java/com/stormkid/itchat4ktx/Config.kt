@@ -2,7 +2,6 @@ package com.stormkid.itchat4ktx
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.os.Handler
 import android.util.Xml
 import com.stormkid.itchat4ktx.constants.ConfigConstants
 import com.stormkid.itchat4ktx.constants.UrlConstants
@@ -86,25 +85,33 @@ class Config private constructor() {
      * 登录
      */
     fun login() {
-        if (isLogin && isAlive) return
-        Handler().postDelayed({
-            loginWorker!!.checkLogin {
-                val url = it.split(";")[1].split("redirect_uri")[1].split("\"")[1]
-                loginConfigData.configUrl = url.split("?")[0]
-                loginConfigData.wxUrl = loginConfigData.configUrl.replace("webwxnewloginpage","")
-                if (glayUrl())else { //虚拟地址
-                    loginConfigData.fileUrl =  loginConfigData.wxUrl
-                    loginConfigData.syncUrl =  loginConfigData.wxUrl
-                }
-                loginConfigData.deviceId ="e" +"${Math.random()}".subSequence(2,17).toString()
-                loginConfigData.loginTime = System.currentTimeMillis()
-                getBaseData(url)
-            }
-        }, 15000)
+
+
+        loginWorker?.pushLogin{
+            s,b ->
+            Log.w(s)
+        }
+
+//        if (isLogin && isAlive) return
+//        Handler().postDelayed({
+//            loginWorker!!.checkLogin {
+//                val url = it.split(";")[1].split("redirect_uri")[1].split("\"")[1]
+//                loginConfigData.configUrl = url.split("?")[0]
+//                loginConfigData.wxUrl = loginConfigData.configUrl.replace("webwxnewloginpage","")
+//                if (glayUrl())else { //虚拟地址
+//                    loginConfigData.fileUrl =  loginConfigData.wxUrl
+//                    loginConfigData.syncUrl =  loginConfigData.wxUrl
+//                }
+//                loginConfigData.deviceId ="e" +"${Math.random()}".subSequence(2,17).toString()
+//                loginConfigData.loginTime = System.currentTimeMillis()
+//                getBaseData(url)
+//            }
+//        }, 15000)
     }
 
     fun close(context: Context) {
         PublicSharePreference.removeAll(context)
+        cleanLoginInfo()
     }
 
 
@@ -137,6 +144,20 @@ class Config private constructor() {
         }catch (e:Exception){
             Log.e("Your login is none data")
         }
+    }
+
+
+    fun cleanLoginInfo(){
+        baseInfoData.pass_ticket = ""
+        baseInfoData.wxsid = ""
+        baseInfoData.wxuin = ""
+        baseInfoData.skey = ""
+        loginConfigData.wxUrl = ""
+        loginConfigData.syncUrl = ""
+        loginConfigData.fileUrl = ""
+        loginConfigData.configUrl = ""
+        loginConfigData.deviceId = ""
+        loginConfigData.loginTime = 0L
     }
 
 }
