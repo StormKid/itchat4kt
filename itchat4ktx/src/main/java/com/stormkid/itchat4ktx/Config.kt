@@ -2,6 +2,7 @@ package com.stormkid.itchat4ktx
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Handler
 import android.util.Xml
 import com.stormkid.itchat4ktx.constants.ConfigConstants
 import com.stormkid.itchat4ktx.constants.UrlConstants
@@ -32,12 +33,17 @@ class Config private constructor() {
     /**
      * 缓存本地的login
      */
-    private val loginConfigData = LoginConfigData()
+    val loginConfigData = LoginConfigData()
 
     /**
      * 缓存登录核心信息
      */
-     val baseInfoData = BaseInfoData()
+    val baseInfoData = BaseInfoData()
+
+    /**
+     * 缓存登录请求核心信息
+     */
+    val baseRequest = BaseRequest()
 
     private val indexUrls = arrayListOf(
         "wx2.qq.com", "wx8.qq.com", "qq.com", "web2.wechat.com", "wechat.com"
@@ -85,28 +91,22 @@ class Config private constructor() {
      * 登录
      */
     fun login() {
-
-
-        loginWorker?.pushLogin{
-            s,b ->
-            Log.w(s)
-        }
-
-//        if (isLogin && isAlive) return
-//        Handler().postDelayed({
-//            loginWorker!!.checkLogin {
-//                val url = it.split(";")[1].split("redirect_uri")[1].split("\"")[1]
-//                loginConfigData.configUrl = url.split("?")[0]
-//                loginConfigData.wxUrl = loginConfigData.configUrl.replace("webwxnewloginpage","")
-//                if (glayUrl())else { //虚拟地址
-//                    loginConfigData.fileUrl =  loginConfigData.wxUrl
-//                    loginConfigData.syncUrl =  loginConfigData.wxUrl
-//                }
-//                loginConfigData.deviceId ="e" +"${Math.random()}".subSequence(2,17).toString()
-//                loginConfigData.loginTime = System.currentTimeMillis()
-//                getBaseData(url)
-//            }
-//        }, 15000)
+        if (isLogin && isAlive) return
+        Handler().postDelayed({
+            loginWorker!!.checkLogin {
+                val url = it.split(";")[1].split("redirect_uri")[1].split("\"")[1]
+                loginConfigData.configUrl = url.split("?")[0]
+                loginConfigData.wxUrl = loginConfigData.configUrl.replace("webwxnewloginpage", "")
+                if (glayUrl()) else { //虚拟地址
+                    loginConfigData.fileUrl = loginConfigData.wxUrl
+                    loginConfigData.syncUrl = loginConfigData.wxUrl
+                }
+                loginConfigData.deviceId = "e" + "${Math.random()}".subSequence(2, 17).toString()
+                loginConfigData.loginTime = System.currentTimeMillis()
+                getBaseData(url)
+                loginWorker!!.webInit()
+            }
+        }, 15000)
     }
 
     fun close(context: Context) {
@@ -115,13 +115,11 @@ class Config private constructor() {
     }
 
 
-
-    private fun getBaseData(url:String){
-        loginWorker?.toLoginIn(url){
+    private fun getBaseData(url: String) {
+        loginWorker?.toLoginIn(url) {
             getBataConfigData(it)
         }
     }
-
 
 
     private fun glayUrl(): Boolean {
@@ -138,16 +136,20 @@ class Config private constructor() {
     }
 
 
-     private fun getBataConfigData(result:String){
+    private fun getBataConfigData(result: String) {
         try {
             Xml.parse(result, BaseDataHandler(baseInfoData))
-        }catch (e:Exception){
+            baseRequest.Uin = baseInfoData.wxuin
+            baseRequest.Skey = baseInfoData.skey
+            baseRequest.Sid = baseInfoData.wxsid
+            baseRequest.DeviceID = baseInfoData.pass_ticket
+        } catch (e: Exception) {
             Log.e("Your login is none data")
         }
     }
 
 
-    fun cleanLoginInfo(){
+    fun cleanLoginInfo() {
         baseInfoData.pass_ticket = ""
         baseInfoData.wxsid = ""
         baseInfoData.wxuin = ""
@@ -158,6 +160,10 @@ class Config private constructor() {
         loginConfigData.configUrl = ""
         loginConfigData.deviceId = ""
         loginConfigData.loginTime = 0L
+        baseRequest.DeviceID = ""
+        baseRequest.Sid =""
+        baseRequest.Skey = ""
+        baseRequest.Uin = ""
     }
 
 }

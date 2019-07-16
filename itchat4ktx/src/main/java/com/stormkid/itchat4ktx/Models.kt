@@ -54,3 +54,24 @@ data class BaseInfoData(
     var wxuin: String = "",
     var pass_ticket : String = ""
 ) : Serializable
+
+/**
+ * 登录核心请求body
+ */
+data class BaseRequest(
+    var Skey:String = "",
+    var Sid:String = "",
+    var Uin:String = "",
+    var DeviceID : String =""
+):Serializable
+
+/**
+ * push login
+ */
+data class PushResult(
+    val ret:String,
+    val msg:String,
+    val uuid:String
+):Serializable
+
+

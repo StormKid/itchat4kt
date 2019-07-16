@@ -11,7 +11,7 @@ object UrlConstants {
     const val QRCODE_URL = "/qrcode" // 二维码初始化url
     const val STATUS_NOTIFY_URL = "/webwxstatusnotify" // 微信状态通知 params:pass_ticket
     const val LOGIN_URL = "/cgi-bin/mmwebwx-bin/login" // 登录URI
-    const val INIT_URL = "/webwxinit" //初始化URL
+    const val INIT_URL = "webwxinit" //初始化URL
     const val SYNC_CHECK_URL = "/synccheck" // 检查心跳
     const val WEB_WX_SYNC_URL = "/webwxsync" //web微信消息同步Url
     const val WEB_WX_SEND_MSG = "/webwxsendmsg" //发送消息URL
