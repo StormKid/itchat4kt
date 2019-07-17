@@ -32,6 +32,8 @@
     	</list>
     -->
     <list>
+        <mapping class="com.stormkid.itchat4ktx.User" />
+        <mapping class="com.stormkid.itchat4ktx.Contact"/>
     </list>
 
     <!--
