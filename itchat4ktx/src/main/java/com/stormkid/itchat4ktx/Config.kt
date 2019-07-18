@@ -45,6 +45,22 @@ class Config private constructor() {
      */
     val baseRequest = BaseRequest()
 
+    /**
+     *  联系人列表，用于显示
+     */
+    val friends = arrayListOf<FriendData>()
+
+    /**
+     * 讨论群组，用于显示
+     */
+    val rooms = arrayListOf<RoomData>()
+
+    /**
+     *  系统或服务号
+     */
+    val services = arrayListOf<FriendData>()
+
+
     private val indexUrls = arrayListOf(
         "wx2.qq.com", "wx8.qq.com", "qq.com", "web2.wechat.com", "wechat.com"
     )
@@ -68,6 +84,7 @@ class Config private constructor() {
                 .setNetClientType(Okkt.HTTPS_TYPE)
                 .initHead(hashMapOf("User-Agent" to ConfigConstants.USER_AGENT))
                 .isNeedCookie(true)
+                .setErr(ConfigConstants.ERR)
                 .isAllowRedirect(false)
                 .isLogShow(true).initHttpClient()
             LitePal.initialize(context)
@@ -117,7 +134,9 @@ class Config private constructor() {
     private fun getBaseData(url: String) {
         loginWorker?.toLoginIn(url) {
             getBataConfigData(it)
-            loginWorker!!.webInit()
+            configWorker?.webInit{
+                loginWorker?.showMobileLogin()
+            }
         }
     }
 
@@ -161,7 +180,7 @@ class Config private constructor() {
         loginConfigData.deviceId = ""
         loginConfigData.loginTime = 0L
         baseRequest.DeviceID = ""
-        baseRequest.Sid =""
+        baseRequest.Sid = ""
         baseRequest.Skey = ""
         baseRequest.Uin = ""
     }

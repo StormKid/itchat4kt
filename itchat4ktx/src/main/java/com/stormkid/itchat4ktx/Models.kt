@@ -19,18 +19,36 @@ open class BaseDao : LitePalSupport(), Serializable
  */
 data class FriendData(
     @Column(nullable = true)
-    val UserName: String,
+    val DisplayName: String,
     @Column(nullable = true)
-    val NickName: String
-
-
+    val NickName: String,
+    @Column(nullable = true)
+    val RemarkName: String,
+    @Column(nullable = true)
+    val HeadImgUrl: String,
+    @Column(nullable = true)
+    val Signature: String,
+    @Column(nullable = true)
+    val UserName: String,
+    @Column
+    val Sex: Int
 ) : BaseDao()
 
 /**
  * 群组信息
  */
 data class RoomData(
-    val id: Int
+    @Column(nullable = true)
+    val DisplayName: String,
+    @Column(nullable = true)
+    val NickName: String,
+    @Column(nullable = true)
+    val RemarkName: String,
+    @Column(nullable = true)
+    val UserName: String,
+    @Column
+    val MemberCount: Int,
+    val MemberList: MutableList<Member>
 ) : BaseDao()
 
 /**
@@ -41,7 +59,7 @@ data class LoginConfigData(
     var fileUrl: String = "",
     var syncUrl: String = "",
     var deviceId: String = "",
-    var wxUrl : String = "",
+    var wxUrl: String = "",
     var loginTime: Long = 0L
 ) : Serializable
 
@@ -52,27 +70,38 @@ data class BaseInfoData(
     var skey: String = "",
     var wxsid: String = "",
     var wxuin: String = "",
-    var pass_ticket : String = ""
+    var pass_ticket: String = ""
 ) : Serializable
 
 /**
  * 登录核心请求body
  */
 data class BaseRequest(
-    var Skey:String = "",
-    var Sid:String = "",
-    var Uin:String = "",
-    var DeviceID : String =""
-):Serializable
+    var Skey: String = "",
+    var Sid: String = "",
+    var Uin: String = "",
+    var DeviceID: String = ""
+) : Serializable
 
 /**
  * push login
  */
 data class PushResult(
-    val ret:String,
-    val msg:String,
-    val uuid:String
-):Serializable
+    val ret: String,
+    val msg: String,
+    val uuid: String
+) : Serializable
+
+/**
+ *  仿造手机进行的登录
+ */
+data class MobileLogin(
+    val BaseRequest: BaseRequest,
+    val FromUserName: String,
+    val ToUserName: String,
+    val Code: Int = 3,
+    val ClientMsgId: Long = System.currentTimeMillis()
+) : Serializable
 
 
 /**
@@ -93,12 +122,12 @@ data class InitInfo(
     val SyncKey: SyncKey,
     val SystemTime: Int,
     val User: User
-):Serializable
+) : Serializable
 
 data class SyncKey(
     val Count: Int,
     val List: MutableList<KeyList>
-):Serializable
+) : Serializable
 
 /**
  * 外键钥匙
@@ -106,7 +135,7 @@ data class SyncKey(
 data class KeyList(
     val Key: Int,
     val Val: Int
-):Serializable
+) : Serializable
 
 /**
  * 服务号文章
@@ -117,7 +146,7 @@ data class MPSubscribeMsg(
     val NickName: String,
     val Time: Int,
     val UserName: String
-):Serializable
+) : Serializable
 
 /**
  * 公众号标题
@@ -127,14 +156,14 @@ data class MPArticle(
     val Digest: String,
     val Title: String,
     val Url: String
-):Serializable
+) : Serializable
 
 /**
  * 本机登录用户信息
  */
 data class User(
     @Column
-    val flag:String = ConfigConstants.USER_FLAG,
+    val flag: String = ConfigConstants.USER_FLAG,
     @Column
     val AppAccountFlag: Int,
     @Column
@@ -173,12 +202,12 @@ data class User(
     val VerifyFlag: Int,
     @Column
     val WebWxPluginSwitch: Int
-):BaseDao()
+) : BaseDao()
 
 data class BaseResponse(
     val ErrMsg: String,
     val Ret: Int
-):Serializable
+) : Serializable
 
 /**
  * 联系人信息
@@ -218,7 +247,7 @@ data class Contact(
     val UniFriend: Int,
     val UserName: String,
     val VerifyFlag: Int
-): Serializable
+) : Serializable
 
 /**
  * 用户信息
@@ -235,4 +264,12 @@ data class Member(
     val RemarkPYQuanPin: String,
     val Uin: Int,
     val UserName: String
-):Serializable
+) : Serializable
+
+/**
+ *  发送信息id验签
+ */
+data class MsgPass(
+    val BaseResponse: BaseResponse,
+    val MsgId: String
+) : Serializable

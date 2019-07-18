@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 import android.text.TextUtils
 import cn.bingoogolapple.qrcode.zxing.QRCodeEncoder
 import com.stormkid.itchat4ktx.Config
-import com.stormkid.itchat4ktx.InitInfo
+import com.stormkid.itchat4ktx.MobileLogin
 import com.stormkid.itchat4ktx.PushResult
 import com.stormkid.itchat4ktx.User
 import com.stormkid.itchat4ktx.constants.ConfigConstants
@@ -22,7 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.litepal.LitePal
-import java.io.InputStream
 
 /**
 对外处理登录等事项
@@ -94,7 +93,7 @@ class LoginWorker(private val context: Context) {
             Okkt.instance.Builder().setUrl(url).setParams(hashMapOf("uin" to wxin))
                 .get(object : CallbackRule<PushResult> {
                     override suspend fun onFailed(error: String) {
-                        Utils.showToast(context, ConfigConstants.ERR)
+                        Utils.showToast(context,error)
                     }
 
                     override suspend fun onSuccess(entity: PushResult, flag: String) {
@@ -116,9 +115,9 @@ class LoginWorker(private val context: Context) {
      * 直接登录获取登录具体内容
      */
     fun toLoginIn(url: String, callback: (String) -> Unit) {
-        Okkt.instance.TestBuilder().setUrl(url).testGet(object :TestCallbackRule{
+        Okkt.instance.TestBuilder().setUrl(url).testGet(object : TestCallbackRule {
             override suspend fun onErr(err: String) {
-                Utils.showToast(context,err)
+                Utils.showToast(context, err)
             }
 
             override suspend fun onResponse(response: TestCallbackRule.Response) {
@@ -132,41 +131,27 @@ class LoginWorker(private val context: Context) {
 
 
     /**
-     * 获取微信服务数据
+     *  虚拟手机状态更新
      */
-    fun webInit() {
-        val url = Config.instance.loginConfigData.wxUrl + UrlConstants.INIT_URL
-        val time = -(System.currentTimeMillis() / 1579).toInt()
-        val params = hashMapOf(
-            "r" to "$time",
-            "pass_ticket" to Config.instance.baseInfoData.pass_ticket
+    fun showMobileLogin() {
+        val user = LitePal.findFirst(User::class.java)
+        val userName = user.UserName
+        val json = GsonFactory.toJson(
+            MobileLogin(
+                Config.instance.baseRequest, userName, userName
+            )
         )
-        val body = hashMapOf("BaseRequest" to Config.instance.baseRequest)
-        val json = GsonFactory.toJson(body)
-        Okkt.instance.Builder().setFullUrl(url).setParams(params).postJson(json, object : CallbackRule<InitInfo> {
+        val url = Config.instance.loginConfigData.wxUrl+UrlConstants.STATUS_NOTIFY_URL
+        val params = hashMapOf("lang" to "zh_CN", "pass_ticket" to Config.instance.baseInfoData.pass_ticket)
+        Okkt.instance.Builder().setFullUrl(url).setParams(params).postStringJson(json,object :StringCallback{
             override suspend fun onFailed(error: String) {
-                Utils.showToast(context, ConfigConstants.ERR)
+                Utils.showToast(context,error)
             }
 
-            override suspend fun onSuccess(entity: InitInfo, flag: String) {
-                if (entity.BaseResponse.Ret == 0){
-                       val user = LitePal.findFirst(User::class.java)
-                       user?.delete()
-                       entity.User.save()
-
-                }else{
-                    Utils.showToast(context, "您的用户信息受限，请用其他账号登录此应用")
-                }
+            override suspend fun onSuccess(entity: String, flag: String) {
             }
-
         })
-
     }
 
-
-
-
-
-    private fun getResult(inputstream: InputStream) = String(inputstream.readBytes())
 
 }
