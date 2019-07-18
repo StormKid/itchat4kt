@@ -104,7 +104,6 @@ class Config private constructor() {
                 loginConfigData.deviceId = "e" + "${Math.random()}".subSequence(2, 17).toString()
                 loginConfigData.loginTime = System.currentTimeMillis()
                 getBaseData(url)
-                loginWorker!!.webInit()
             }
         }, 15000)
     }
@@ -118,6 +117,7 @@ class Config private constructor() {
     private fun getBaseData(url: String) {
         loginWorker?.toLoginIn(url) {
             getBataConfigData(it)
+            loginWorker!!.webInit()
         }
     }
 

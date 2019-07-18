@@ -16,15 +16,11 @@ import com.stormkid.libs.dimen.DimenUtils
 import com.stormkid.okhttpkt.core.Okkt
 import com.stormkid.okhttpkt.rule.CallbackRule
 import com.stormkid.okhttpkt.rule.StringCallback
+import com.stormkid.okhttpkt.rule.TestCallbackRule
 import com.stormkid.okhttpkt.utils.GsonFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.apache.http.HttpResponse
-import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.DefaultHttpClient
-import org.apache.http.impl.client.DefaultRedirectHandler
-import org.apache.http.protocol.HttpContext
 import org.litepal.LitePal
 import java.io.InputStream
 
@@ -120,24 +116,24 @@ class LoginWorker(private val context: Context) {
      * 直接登录获取登录具体内容
      */
     fun toLoginIn(url: String, callback: (String) -> Unit) {
-        val get = HttpGet(url)
-        get.addHeader("User-Agent", ConfigConstants.USER_AGENT)
-        val client = DefaultHttpClient()
-        client.redirectHandler = RedirectHander()
-        runBlocking {
-            launch(Dispatchers.IO) {
-                try {
-                    val response = client.execute(get)
-                    val input = response.entity.content
-                    callback.invoke(getResult(input))
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+        Okkt.instance.TestBuilder().setUrl(url).testGet(object :TestCallbackRule{
+            override suspend fun onErr(err: String) {
+                Utils.showToast(context,err)
             }
-        }
+
+            override suspend fun onResponse(response: TestCallbackRule.Response) {
+                callback.invoke(response.body)
+            }
+
+        })
+
+
     }
 
 
+    /**
+     * 获取微信服务数据
+     */
     fun webInit() {
         val url = Config.instance.loginConfigData.wxUrl + UrlConstants.INIT_URL
         val time = -(System.currentTimeMillis() / 1579).toInt()
@@ -157,6 +153,7 @@ class LoginWorker(private val context: Context) {
                        val user = LitePal.findFirst(User::class.java)
                        user?.delete()
                        entity.User.save()
+
                 }else{
                     Utils.showToast(context, "您的用户信息受限，请用其他账号登录此应用")
                 }
@@ -167,12 +164,9 @@ class LoginWorker(private val context: Context) {
     }
 
 
+
+
+
     private fun getResult(inputstream: InputStream) = String(inputstream.readBytes())
 
-    inner class RedirectHander : DefaultRedirectHandler() {
-        override fun isRedirectRequested(p0: HttpResponse?, p1: HttpContext?): Boolean {
-            return false
-        }
-
-    }
 }

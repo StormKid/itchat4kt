@@ -24,8 +24,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val text = 0x1F450
 
-
+        doNow.text = String(Character.toChars(text))
         doNow.setOnClickListener {
             Config.instance.showQr {
                 qrCode.setImageBitmap(it)
