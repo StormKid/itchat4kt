@@ -4,11 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.text.TextUtils
 import cn.bingoogolapple.qrcode.zxing.QRCodeEncoder
-import com.stormkid.itchat4ktx.Config
-import com.stormkid.itchat4ktx.MobileLogin
-import com.stormkid.itchat4ktx.PushResult
-import com.stormkid.itchat4ktx.User
-import com.stormkid.itchat4ktx.constants.ConfigConstants
+import com.stormkid.itchat4ktx.*
+import com.stormkid.itchat4ktx.constants.KeyContants
 import com.stormkid.itchat4ktx.constants.UrlConstants
 import com.stormkid.itchat4ktx.util.PublicSharePreference
 import com.stormkid.itchat4ktx.util.Utils
@@ -35,7 +32,7 @@ class LoginWorker(private val context: Context) {
      * 查看是否登录
      */
     fun checkLogin(callback: (String) -> Unit) {
-        val uuid = PublicSharePreference.getString(context, ConfigConstants.UUID_KEY)
+        val uuid = PublicSharePreference.getString(context, KeyContants.UUID_KEY)
         if (TextUtils.isEmpty(uuid)) return
         val localTime = System.currentTimeMillis()
         val r = ((-localTime) / 1579).toInt()
@@ -60,7 +57,7 @@ class LoginWorker(private val context: Context) {
                             Utils.showToast(context, "请重新刷新并扫码登录")
                         }
                     } catch (e: Exception) {
-                        Utils.showToast(context, ConfigConstants.ERR)
+                        Utils.showToast(context, KeyContants.ERR)
                     }
 
 
@@ -74,7 +71,7 @@ class LoginWorker(private val context: Context) {
      */
     fun getQrCode(callback: (Bitmap?) -> Unit) {
         val path = "https://login.weixin.qq.com/l/"
-        val uuid = PublicSharePreference.getString(context, ConfigConstants.UUID_KEY)
+        val uuid = PublicSharePreference.getString(context, KeyContants.UUID_KEY)
         runBlocking {
             launch(Dispatchers.Unconfined) {
                 val bitmap = QRCodeEncoder.syncEncodeQRCode(path + uuid, DimenUtils.dip2px(context, 200f))
@@ -99,7 +96,7 @@ class LoginWorker(private val context: Context) {
                     override suspend fun onSuccess(entity: PushResult, flag: String) {
                         if (TextUtils.isEmpty(entity.uuid)) callback.invoke(false)
                         else {
-                            PublicSharePreference.putString(context, ConfigConstants.UUID_KEY, entity.uuid)
+                            PublicSharePreference.putString(context, KeyContants.UUID_KEY, entity.uuid)
                             callback.invoke(true)
                         }
 
@@ -141,14 +138,14 @@ class LoginWorker(private val context: Context) {
                 Config.instance.baseRequest, userName, userName
             )
         )
-        val url = Config.instance.loginConfigData.wxUrl+UrlConstants.STATUS_NOTIFY_URL
         val params = hashMapOf("lang" to "zh_CN", "pass_ticket" to Config.instance.baseInfoData.pass_ticket)
-        Okkt.instance.Builder().setFullUrl(url).setParams(params).postStringJson(json,object :StringCallback{
+        Okkt.instance.Builder().setUrl(UrlConstants.STATUS_NOTIFY_URL).setParams(params).postJson(json,object : CallbackRule<MsgPass>{
             override suspend fun onFailed(error: String) {
                 Utils.showToast(context,error)
             }
 
-            override suspend fun onSuccess(entity: String, flag: String) {
+            override suspend fun onSuccess(entity: MsgPass, flag: String) {
+                PublicSharePreference.putString(context,KeyContants.MSG_ID,entity.MsgId)
             }
         })
     }

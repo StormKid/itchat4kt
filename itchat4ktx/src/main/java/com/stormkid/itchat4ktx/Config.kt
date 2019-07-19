@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.os.Handler
 import android.util.Xml
 import com.stormkid.itchat4ktx.constants.ConfigConstants
+import com.stormkid.itchat4ktx.constants.KeyContants
 import com.stormkid.itchat4ktx.constants.UrlConstants
 import com.stormkid.itchat4ktx.core.ConfigWorker
 import com.stormkid.itchat4ktx.core.FriendWorker
@@ -84,7 +85,7 @@ class Config private constructor() {
                 .setNetClientType(Okkt.HTTPS_TYPE)
                 .initHead(hashMapOf("User-Agent" to ConfigConstants.USER_AGENT))
                 .isNeedCookie(true)
-                .setErr(ConfigConstants.ERR)
+                .setErr(KeyContants.ERR)
                 .isAllowRedirect(false)
                 .isLogShow(true).initHttpClient()
             LitePal.initialize(context)
@@ -120,11 +121,15 @@ class Config private constructor() {
                 }
                 loginConfigData.deviceId = "e" + "${Math.random()}".subSequence(2, 17).toString()
                 loginConfigData.loginTime = System.currentTimeMillis()
+                Okkt.instance.setBase(loginConfigData.wxUrl)
                 getBaseData(url)
             }
         }, 15000)
     }
 
+    /**
+     * 关闭处理
+     */
     fun close(context: Context) {
         PublicSharePreference.removeAll(context)
         cleanLoginInfo()
@@ -135,7 +140,7 @@ class Config private constructor() {
         loginWorker?.toLoginIn(url) {
             getBataConfigData(it)
             configWorker?.webInit{
-                loginWorker?.showMobileLogin()
+                    loginWorker?.showMobileLogin()
             }
         }
     }

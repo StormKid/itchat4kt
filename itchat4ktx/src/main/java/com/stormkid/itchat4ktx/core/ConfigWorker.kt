@@ -1,8 +1,9 @@
 package com.stormkid.itchat4ktx.core
 
 import android.content.Context
+import android.text.TextUtils
 import com.stormkid.itchat4ktx.*
-import com.stormkid.itchat4ktx.constants.ConfigConstants
+import com.stormkid.itchat4ktx.constants.KeyContants
 import com.stormkid.itchat4ktx.constants.UrlConstants
 import com.stormkid.itchat4ktx.util.PublicSharePreference
 import com.stormkid.itchat4ktx.util.Utils
@@ -11,6 +12,7 @@ import com.stormkid.okhttpkt.rule.CallbackRule
 import com.stormkid.okhttpkt.rule.StringCallback
 import com.stormkid.okhttpkt.utils.GsonFactory
 import org.litepal.LitePal
+import java.io.File
 
 /**
 基本初始化请求
@@ -22,22 +24,26 @@ class ConfigWorker(private val context: Context){
     private val API_KEY = "wx782c26e4c19acffb"
     private val FUNC = "new"
 
+    /**
+     * 获取串码钥匙
+     */
     fun getUUid(callback:(String)->Unit){
         Okkt.instance.Builder().setUrl(UrlConstants.UUID_URL).setParams(hashMapOf(
             "appid" to API_KEY,
             "fun" to FUNC
         )).getString(object : StringCallback{
             override suspend fun onFailed(error: String) {
+                Utils.showToast(context,error)
             }
 
             override suspend fun onSuccess(entity: String, flag: String) {
                 try {
                     val key = entity.split(";")[1]
                     val uuid = key.split("uuid")[1].split("\"")[1]
-                    PublicSharePreference.putString(context,ConfigConstants.UUID_KEY,uuid)
+                    PublicSharePreference.putString(context, KeyContants.UUID_KEY,uuid)
                     callback.invoke(uuid)
                 }catch (e:Exception){
-                    Utils.showToast(context,ConfigConstants.ERR)
+                    Utils.showToast(context,KeyContants.ERR)
                 }
 
             }
@@ -50,7 +56,6 @@ class ConfigWorker(private val context: Context){
      * 获取微信服务数据 用于不断刷新数据使用
      */
     fun webInit(callback: () -> Unit) {
-        val url = Config.instance.loginConfigData.wxUrl + UrlConstants.INIT_URL
         val time = -(System.currentTimeMillis() / 1579).toInt()
         val params = hashMapOf(
             "r" to "$time",
@@ -58,7 +63,7 @@ class ConfigWorker(private val context: Context){
         )
         val body = hashMapOf("BaseRequest" to Config.instance.baseRequest)
         val json = GsonFactory.toJson(body)
-        Okkt.instance.Builder().setFullUrl(url).setParams(params).postJson(json, object : CallbackRule<InitInfo> {
+        Okkt.instance.Builder().setUrl(UrlConstants.INIT_URL).setParams(params).postJson(json, object : CallbackRule<InitInfo> {
             override suspend fun onFailed(error: String) {
                 Utils.showToast(context, error)
             }
@@ -95,6 +100,32 @@ class ConfigWorker(private val context: Context){
         })
 
     }
+
+    /**
+     * 获取所有的联系人
+     */
+    fun getContacts(){
+        val skey = Config.instance.baseInfoData.skey
+        if (TextUtils.isEmpty(skey)){
+            Utils.showToast(context,"登录信息异常，请重新扫码登录")
+            return
+        }
+        val params = hashMapOf("r" to "${System.currentTimeMillis()}", "seq" to "0","skey" to skey)
+        Okkt.instance.Builder().setUrl(UrlConstants.WEB_WX_GET_CONTACT).setParams(params).postStringJson(object : StringCallback{
+            override suspend fun onFailed(error: String) {
+            }
+
+            override suspend fun onSuccess(entity: String, flag: String) {
+                val path = context.externalCacheDir?.absolutePath + "/pp.json"
+                val file = File(path)
+                file.writeText(entity)
+            }
+
+        })
+    }
+
+
+
 
     private fun createFriend(contact: Contact) =
         FriendData(contact.DisplayName,contact.NickName,contact.RemarkName,contact.HeadImgUrl,contact.Signature,contact.UserName,contact.Sex)

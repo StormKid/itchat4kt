@@ -1,6 +1,6 @@
 package com.stormkid.itchat4ktx
 
-import com.stormkid.itchat4ktx.constants.ConfigConstants
+import com.stormkid.itchat4ktx.constants.KeyContants
 import org.litepal.annotation.Column
 import org.litepal.crud.LitePalSupport
 import java.io.Serializable
@@ -163,7 +163,7 @@ data class MPArticle(
  */
 data class User(
     @Column
-    val flag: String = ConfigConstants.USER_FLAG,
+    val flag: String = KeyContants.USER_FLAG,
     @Column
     val AppAccountFlag: Int,
     @Column
@@ -273,3 +273,4 @@ data class MsgPass(
     val BaseResponse: BaseResponse,
     val MsgId: String
 ) : Serializable
+

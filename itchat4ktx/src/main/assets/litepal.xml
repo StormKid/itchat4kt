@@ -33,7 +33,8 @@
     -->
     <list>
         <mapping class="com.stormkid.itchat4ktx.User" />
-        <mapping class="com.stormkid.itchat4ktx.Contact"/>
+        <mapping class="com.stormkid.itchat4ktx.FriendData"/>
+        <mapping class="com.stormkid.itchat4ktx.RoomData"/>
     </list>
 
     <!--

@@ -21,7 +21,8 @@ object UrlConstants {
     const val WEB_WX_GET_VIEDO = "webwxgetvideo" //下载视频消息
     const val WEB_WX_PUSH_LOGIN = "cgi-bin/mmwebwx-bin/webwxpushloginurl" // 不扫码登录
     const val WEB_WX_LOGOUT = "webwxlogout"// 退出登录
-    const val WEB_WX_BATCH_GET_CONTACT = "webwxbatchgetcontact"// 查询群信息
+    const val WEB_WX_GET_CONTACT = "webwxgetcontact"// 查询联系人信息
+    const val WEB_WX_BASH_CONTACT = "webwxbatchgetcontact" // 用于更新本地数据
     const val WEB_WX_REMARKNAME = "webwxoplog" //修改好友备注
     const val WEB_WX_VERIFYUSER = "webwxverifyuser" // 被动添加好友
     const val WEB_WX_GET_MEDIA = "webwxgetmedia" // 下载文件
