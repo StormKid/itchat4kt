@@ -139,10 +139,19 @@ class Config private constructor() {
     private fun getBaseData(url: String) {
         loginWorker?.toLoginIn(url) {
             getBataConfigData(it)
-            configWorker?.webInit{
-                    loginWorker?.showMobileLogin()
+            configWorker?.webInit {
+                loginWorker?.showMobileLogin {
+                    configWorker?.getContacts()
+                }
             }
         }
+    }
+
+    /**
+     * 开始记录登录状态
+     */
+    fun startRec(){
+        //TODO
     }
 
 

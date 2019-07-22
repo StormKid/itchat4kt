@@ -130,7 +130,7 @@ class LoginWorker(private val context: Context) {
     /**
      *  虚拟手机状态更新
      */
-    fun showMobileLogin() {
+    fun showMobileLogin(callback: () -> Unit) {
         val user = LitePal.findFirst(User::class.java)
         val userName = user.UserName
         val json = GsonFactory.toJson(
@@ -146,6 +146,7 @@ class LoginWorker(private val context: Context) {
 
             override suspend fun onSuccess(entity: MsgPass, flag: String) {
                 PublicSharePreference.putString(context,KeyContants.MSG_ID,entity.MsgId)
+                callback.invoke()
             }
         })
     }

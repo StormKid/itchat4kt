@@ -125,6 +125,14 @@ class ConfigWorker(private val context: Context){
     }
 
 
+    /**
+     * 检查是不是活跃用户
+     */
+    fun checkIsAlive(){
+
+    }
+
+
 
 
     private fun createFriend(contact: Contact) =

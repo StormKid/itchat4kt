@@ -273,4 +273,3 @@ data class MsgPass(
     val BaseResponse: BaseResponse,
     val MsgId: String
 ) : Serializable
-
