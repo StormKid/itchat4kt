@@ -70,7 +70,8 @@ data class BaseInfoData(
     var skey: String = "",
     var wxsid: String = "",
     var wxuin: String = "",
-    var pass_ticket: String = ""
+    var pass_ticket: String = "",
+    var synckey:String = ""
 ) : Serializable
 
 /**

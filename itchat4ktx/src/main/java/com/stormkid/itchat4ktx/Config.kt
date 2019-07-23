@@ -187,6 +187,7 @@ class Config private constructor() {
         baseInfoData.wxsid = ""
         baseInfoData.wxuin = ""
         baseInfoData.skey = ""
+        baseInfoData.synckey = ""
         loginConfigData.wxUrl = ""
         loginConfigData.syncUrl = ""
         loginConfigData.fileUrl = ""
