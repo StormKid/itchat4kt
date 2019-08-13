@@ -47,8 +47,7 @@ data class RoomData(
     @Column(nullable = true)
     val UserName: String,
     @Column
-    val MemberCount: Int,
-    val MemberList: MutableList<Member>
+    val MemberCount: Int
 ) : BaseDao()
 
 /**
@@ -71,7 +70,7 @@ data class BaseInfoData(
     var wxsid: String = "",
     var wxuin: String = "",
     var pass_ticket: String = "",
-    var synckey:String = ""
+    var synckey: String = ""
 ) : Serializable
 
 /**
@@ -211,7 +210,7 @@ data class BaseResponse(
 ) : Serializable
 
 /**
- * 联系人信息
+ * 联系人信息(包含群组)
  */
 data class Contact(
     val Alias: String,
@@ -230,7 +229,7 @@ data class Contact(
     /**
      * 如果是群组，那么这是群组内部的成员对象
      */
-    val MemberList: MutableList<Member>,
+    val MemberList: MutableList<Contact>,
     val NickName: String,
     val OwnerUin: Int,
     val PYInitial: String,
@@ -250,27 +249,22 @@ data class Contact(
     val VerifyFlag: Int
 ) : Serializable
 
-/**
- * 用户信息
- */
-data class Member(
-    val AttrStatus: Int,
-    val DisplayName: String,
-    val KeyWord: String,
-    val MemberStatus: Int,
-    val NickName: String,
-    val PYInitial: String,
-    val PYQuanPin: String,
-    val RemarkPYInitial: String,
-    val RemarkPYQuanPin: String,
-    val Uin: Int,
-    val UserName: String
-) : Serializable
 
 /**
  *  发送信息id验签
  */
 data class MsgPass(
     val BaseResponse: BaseResponse,
-    val MsgId: String
+    val MsgID: String
 ) : Serializable
+
+/**
+ * 联系人
+ */
+data class Contacts(
+    val BaseResponse: BaseResponse,
+    val MemberCount: Int,
+    val MemberList: ArrayList<Contact>,
+    val Seq: Int
+)
+

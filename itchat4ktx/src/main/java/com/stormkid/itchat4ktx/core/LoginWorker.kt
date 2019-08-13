@@ -145,7 +145,7 @@ class LoginWorker(private val context: Context) {
             }
 
             override suspend fun onSuccess(entity: MsgPass, flag: String) {
-                PublicSharePreference.putString(context,KeyContants.MSG_ID,entity.MsgId)
+                PublicSharePreference.putString(context,KeyContants.MSG_ID,entity.MsgID)
                 callback.invoke()
             }
         })

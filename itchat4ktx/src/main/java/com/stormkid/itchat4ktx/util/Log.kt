@@ -3,7 +3,7 @@ package com.stormkid.itchat4ktx.util
 import android.util.Log
 
 /**
-
+自定义logger
 @author ke_li
 @date 2019/6/14
  */

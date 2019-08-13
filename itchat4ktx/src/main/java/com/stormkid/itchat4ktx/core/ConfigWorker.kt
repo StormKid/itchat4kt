@@ -91,7 +91,7 @@ class ConfigWorker(private val context: Context) {
                             }
                         }
                         Config.instance.baseInfoData.synckey = initSyncKey(entity.SyncKey)
-                        Log.w( Config.instance.baseInfoData.synckey)
+                        Log.w(Config.instance.baseInfoData.synckey)
                         // 存储用户信息
                         val user = LitePal.findFirst(User::class.java)
                         user?.delete()
@@ -117,16 +117,18 @@ class ConfigWorker(private val context: Context) {
         }
         val params = hashMapOf("r" to "${System.currentTimeMillis()}", "seq" to "0", "skey" to skey)
         Okkt.instance.Builder().setUrl(UrlConstants.WEB_WX_GET_CONTACT).setParams(params)
-            .postStringJson(object : StringCallback {
+            .get(object : CallbackRule<Contacts> {
                 override suspend fun onFailed(error: String) {
+
                 }
 
-                override suspend fun onSuccess(entity: String, flag: String) {
-//                    val path = context.externalCacheDir?.absolutePath + "/pp.json"
-//                    val file = File(path)
-//                    file.writeText(entity)
-                    Log.w("---$entity")
+                override suspend fun onSuccess(entity: Contacts, flag: String) {
+                    //                    val path = context.externalCacheDir?.absolutePath + "/pp.json"
+                    //                    val file = File(path)
+                    //                    file.writeText(entity)
+
                 }
+
 
             })
     }
@@ -144,13 +146,25 @@ class ConfigWorker(private val context: Context) {
             "uin" to Config.instance.baseInfoData.wxuin,
             "deviceid" to Config.instance.loginConfigData.deviceId,
             "synckey" to Config.instance.baseInfoData.synckey,
-            "_" to Config.instance.loginConfigData.loginTime
+            "_" to "${Config.instance.loginConfigData.loginTime}"
         )
         Config.instance.loginConfigData.loginTime += 1
+        Okkt.instance.Builder().setUrl(path).setParams(params).getString(object : StringCallback {
+            override suspend fun onFailed(error: String) {
 
+            }
+
+            override suspend fun onSuccess(entity: String, flag: String) {
+                Log.w(entity)
+            }
+
+        })
     }
 
 
+    /**
+     * 创建联系人信息
+     */
     private fun createFriend(contact: Contact) =
         FriendData(
             contact.DisplayName,
@@ -162,23 +176,28 @@ class ConfigWorker(private val context: Context) {
             contact.Sex
         )
 
+    /**
+     * 创建群组信息
+     */
     private fun createChartRoom(contact: Contact) =
         RoomData(
             contact.DisplayName,
             contact.NickName,
             contact.RemarkName,
             contact.UserName,
-            contact.MemberCount,
-            contact.MemberList
+            contact.MemberCount
         )
 
+    /**
+     * 合成响应密钥
+     */
     private fun initSyncKey(key: SyncKey): String {
         val list = key.List
         var result = ""
         list.forEach {
-            result =  result.plus("${it.Key}_${it.Val}|")
+            result = result.plus("${it.Key}_${it.Val}|")
         }
-        result = result.subSequence(0, result.length-1).toString()
+        result = result.subSequence(0, result.length - 1).toString()
         return result
     }
 
