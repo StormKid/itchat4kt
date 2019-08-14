@@ -30,8 +30,8 @@ data class FriendData(
     val Signature: String,
     @Column(nullable = true)
     val UserName: String,
-    @Column
-    val Sex: Int
+    @Column(nullable = true)
+    val Sex: String
 ) : BaseDao()
 
 /**
@@ -46,8 +46,8 @@ data class RoomData(
     val RemarkName: String,
     @Column(nullable = true)
     val UserName: String,
-    @Column
-    val MemberCount: Int
+    @Column(defaultValue = "0")
+    val MemberCount: String
 ) : BaseDao()
 
 /**
@@ -238,7 +238,7 @@ data class Contact(
     val RemarkName: String,
     val RemarkPYInitial: String,
     val RemarkPYQuanPin: String,
-    val Sex: Int,
+    val Sex: String,
     val Signature: String,
     val SnsFlag: Int,
     val StarFriend: Int,

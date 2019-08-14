@@ -79,7 +79,7 @@ class ConfigWorker(private val context: Context) {
                         // 填充可显示的信息
                         val contacts = entity.ContactList
                         contacts.forEach {
-                            if (it.Sex != 0 || it.UserName.contains("@")) {
+                            if (it.Sex != "0" || it.UserName.contains("@")) {
                                 val friend = createFriend(it)
                                 Config.instance.friends.add(friend)
                             } else if (it.UserName.contains("@@")) {
@@ -119,14 +119,33 @@ class ConfigWorker(private val context: Context) {
         Okkt.instance.Builder().setUrl(UrlConstants.WEB_WX_GET_CONTACT).setParams(params)
             .get(object : CallbackRule<Contacts> {
                 override suspend fun onFailed(error: String) {
-
+                    Utils.showToast(context, error)
                 }
 
                 override suspend fun onSuccess(entity: Contacts, flag: String) {
                     //                    val path = context.externalCacheDir?.absolutePath + "/pp.json"
                     //                    val file = File(path)
                     //                    file.writeText(entity)
-
+                    val memberList = entity.MemberList
+                    val allFriend = LitePal.findAll(FriendData::class.java)
+                    memberList.forEach {
+                        val friendData = FriendData(
+                            it.DisplayName,
+                            it.NickName,
+                            it.RemarkName,
+                            it.HeadImgUrl,
+                            it.Signature,
+                            it.UserName,
+                            it.Sex
+                        )
+                        val filter = allFriend.filter { dbdata -> dbdata.UserName == friendData.UserName }
+                        if (filter.isNotEmpty()) {
+                            allFriend.remove(filter.first())
+                        }
+                        allFriend.add(friendData)
+                    }
+                    Log.w(allFriend)
+                    LitePal.saveAll(allFriend)
                 }
 
 
@@ -185,7 +204,7 @@ class ConfigWorker(private val context: Context) {
             contact.NickName,
             contact.RemarkName,
             contact.UserName,
-            contact.MemberCount
+            "${contact.MemberCount}"
         )
 
     /**
