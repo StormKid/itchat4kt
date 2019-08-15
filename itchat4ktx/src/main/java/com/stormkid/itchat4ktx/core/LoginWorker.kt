@@ -151,5 +151,11 @@ class LoginWorker(private val context: Context) {
         })
     }
 
+    /**
+     * 获取信息列表以及交流列表
+     * websocket
+     */
+    fun getMsgRoom(){
 
+    }
 }

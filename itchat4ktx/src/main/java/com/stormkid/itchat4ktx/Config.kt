@@ -86,6 +86,7 @@ class Config private constructor() {
                 .initHead(hashMapOf("User-Agent" to ConfigConstants.USER_AGENT))
                 .isNeedCookie(true)
                 .setErr(KeyContants.ERR)
+                .setTimeOut(ConfigConstants.TIME_OUT)
                 .isAllowRedirect(false)
                 .isLogShow(true).initHttpClient()
             LitePal.initialize(context)
